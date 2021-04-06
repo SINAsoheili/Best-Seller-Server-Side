@@ -85,5 +85,27 @@ def registar_shop():
     except e as Exception:
         abort(503)    
 
+@app.route('/get_shop_info' , methods=['GET'])
+def get_shop_info():
+    id = request.args.get('shop_id', None)
+
+    if id==None :
+        abort(400)
+    
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+    cursor = db.cursor()
+    cmd = f"SELECT * FROM {TABLE_SHOP} WHERE id={id}"
+    cursor.execute(cmd)
+    result = cursor.fetchall()
+    if len(result) == 0:
+        return {"find":False , "shop":{}}
+    elif len(result) == 1:
+        (id, name, address, latitude, longitude, phone, site, description, id_seller, id_category) = result[0]
+        return {"find":True , "shop":{"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}}
+    else:
+        abort(500)
+
 if __name__ == "__main__":
     app.run("localhost" , 5000 , True)
