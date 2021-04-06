@@ -1,5 +1,5 @@
 from flask import Flask, request, abort
-from database_config import TABLE_SELLER, DB_SERVER, DB_USER, DB_PASSWD, DB_NAME, TABLE_SHOP
+from database_config import DB_SERVER, DB_USER, DB_PASSWD, DB_NAME, TABLE_SHOP, TABLE_SELLER
 import mysql.connector
 
 app = Flask(__name__)
@@ -104,6 +104,28 @@ def get_shop_info():
     elif len(result) == 1:
         (id, name, address, latitude, longitude, phone, site, description, id_seller, id_category) = result[0]
         return {"find":True , "shop":{"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}}
+    else:
+        abort(500)
+
+@app.route('/get_seller_info' , methods=['GET'])
+def get_seller_info():
+    id = request.args.get('seller_id', None)
+
+    if id==None :
+        abort(400)
+    
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+    cursor = db.cursor()
+    cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
+    cursor.execute(cmd)
+    result = cursor.fetchall()
+    if len(result) == 0:
+        return {"find":False , "seller":{}}
+    elif len(result) == 1:
+        (id, name, last_name, phone, *_) = result[0]
+        return {"find":True , "seller":{"id":id, "name":name, "last_name":last_name , "phone":phone}}
     else:
         abort(500)
 
