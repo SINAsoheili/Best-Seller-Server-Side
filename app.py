@@ -45,17 +45,6 @@ def registar_seller():
     except :
         abort(503)    
 
-
-
-
-
-
-
-
-
-
-
-
 @app.route('/register_shop' , methods=['GET'])
 def registar_shop():
     name = request.args.get('name', None)
@@ -79,8 +68,8 @@ def registar_shop():
     if db==None:
         abort(500)
     cursor = db.cursor()
-    cursor.execute(cmd , params)
     try:
+        cursor.execute(cmd , params)
         db.commit()
         cmd = f"SELECT * FROM {TABLE_SHOP} WHERE id_seller={id_seller}"
         cursor.execute(cmd)
@@ -91,8 +80,12 @@ def registar_shop():
             id = result[0][0]
             return {"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}
             
-    except e as Exception:
+    except :
         abort(503)    
+
+
+
+
 
 @app.route('/register_user' , methods=['GET'])
 def registar_user():
