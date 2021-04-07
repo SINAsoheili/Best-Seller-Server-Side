@@ -40,7 +40,7 @@ def registar_seller():
         cursor.execute(cmd)
         result = cursor.fetchone()
         id = result[0]
-        return {"id":id, "name":name , "last_name":last_name , "phone":phone , "passwd":passwd}
+        return {"id":id, "name":name , "last_name":last_name , "phone":phone}
             
     except :
         abort(503)    
@@ -108,7 +108,7 @@ def registar_user():
         cursor.execute(cmd)
         result = cursor.fetchone()
         id = result[0]
-        return {"id":id, "name":name , "last_name":last_name , "phone":phone , "passwd":passwd}
+        return {"id":id, "name":name , "last_name":last_name , "phone":phone}
             
     except :
         abort(503) 
