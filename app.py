@@ -31,21 +31,30 @@ def registar_seller():
     if db==None:
         abort(500)
     cursor = db.cursor()
-    cursor.execute(cmd , params)
+    
     try:
+        cursor.execute(cmd , params)
         db.commit()
         
         cmd = f"SELECT * FROM {TABLE_SELLER} WHERE phone={phone}"
         cursor.execute(cmd)
-        result = cursor.fetchall()
-        if len(result) != 1:
-            abort(500)
-        else :
-            id = result[0][0]
-            return {"id":id, "name":name , "last_name":last_name , "phone":phone , "passwd":passwd}
+        result = cursor.fetchone()
+        id = result[0]
+        return {"id":id, "name":name , "last_name":last_name , "phone":phone , "passwd":passwd}
             
-    except e as Exception:
+    except :
         abort(503)    
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/register_shop' , methods=['GET'])
 def registar_shop():
