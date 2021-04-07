@@ -45,17 +45,6 @@ def registar_seller():
     except :
         abort(503)    
 
-
-
-
-
-
-
-
-
-
-
-
 @app.route('/register_shop' , methods=['GET'])
 def registar_shop():
     name = request.args.get('name', None)
@@ -79,19 +68,16 @@ def registar_shop():
     if db==None:
         abort(500)
     cursor = db.cursor()
-    cursor.execute(cmd , params)
     try:
+        cursor.execute(cmd , params)
         db.commit()
         cmd = f"SELECT * FROM {TABLE_SHOP} WHERE id_seller={id_seller}"
         cursor.execute(cmd)
-        result = cursor.fetchall()
-        if len(result) != 1:
-            abort(500)
-        else :
-            id = result[0][0]
-            return {"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}
+        result = cursor.fetchone()
+        id = result[0]
+        return {"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}
             
-    except e as Exception:
+    except:
         abort(503)    
 
 @app.route('/register_user' , methods=['GET'])
@@ -114,20 +100,17 @@ def registar_user():
     if db==None:
         abort(500)
     cursor = db.cursor()
-    cursor.execute(cmd , params)
     try:
+        cursor.execute(cmd , params)
         db.commit()
         
         cmd = f"SELECT * FROM {TABLE_USER} WHERE phone={phone}"
         cursor.execute(cmd)
-        result = cursor.fetchall()
-        if len(result) != 1:
-            abort(500)
-        else :
-            id = result[0][0]
-            return {"id":id, "name":name , "last_name":last_name , "phone":phone , "passwd":passwd}
+        result = cursor.fetchone()
+        id = result[0]
+        return {"id":id, "name":name , "last_name":last_name , "phone":phone , "passwd":passwd}
             
-    except e as Exception:
+    except :
         abort(503) 
 
 @app.route('/get_shop_info' , methods=['GET'])
