@@ -186,17 +186,6 @@ def get_user_info():
     else:
         abort(500)
 
-
-
-
-
-
-
-
-
-
-
-
 @app.route('/register_discount' , methods=['GET'])
 def registar_discount():
     name = request.args.get('name', None)
@@ -227,18 +216,33 @@ def registar_discount():
     except :
         abort(503) 
 
+@app.route('/delete_discount' , methods=['GET'])
+def delete_discount():
+    id_shop = request.args.get('id_shop', None)
 
+    if id_shop==None:
+        abort(400)
 
+    cmd = f"DELETE FROM {TABLE_DISCOUNT} WHERE id_shop=%s"
+    params = (id_shop,)
 
-
-
-
-
-
-
-
-
-
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+    cursor = db.cursor()
+    try:
+        cursor.execute(cmd, params)
+        db.commit()
+        
+        cmd = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
+        cursor.execute(cmd)
+        result = cursor.fetchone()
+        if result==None:
+            return {"discount_deleted":True}
+        else:
+            return {"discount_deleted":False}        
+    except :
+        abort(503)
 
 if __name__ == "__main__":
     app.run("localhost" , 5000 , True)
