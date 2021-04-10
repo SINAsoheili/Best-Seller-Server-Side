@@ -84,8 +84,16 @@ def registar_shop():
         id = result[0]
         return {"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}
             
+<<<<<<< HEAD
     except:
+=======
+    except :
+>>>>>>> e2415c1237e6b2e8ae6488b745926a2f7f59f276
         abort(503)    
+
+
+
+
 
 @app.route('/register_user' , methods=['GET'])
 def registar_user():
