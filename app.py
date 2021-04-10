@@ -1,5 +1,5 @@
 from flask import Flask, request, abort
-from database_config import DB_SERVER, DB_USER, DB_PASSWD, DB_NAME, TABLE_SHOP, TABLE_SELLER, TABLE_USER, SALT
+from database_config import DB_SERVER, DB_USER, DB_PASSWD, DB_NAME, TABLE_SHOP, TABLE_SELLER, TABLE_USER, TABLE_DISCOUNT, SALT
 import mysql.connector
 import hashlib
 
@@ -185,6 +185,60 @@ def get_user_info():
         return {"find":True , "user":{"id":id, "name":name, "last_name":last_name , "phone":phone}}
     else:
         abort(500)
+
+
+
+
+
+
+
+
+
+
+
+
+@app.route('/register_discount' , methods=['GET'])
+def registar_discount():
+    name = request.args.get('name', None)
+    amount = request.args.get('amount', None)
+    id_shop = request.args.get('id_shop', None)
+
+    if name==None or amount==None or id_shop==None:
+        abort(400)
+
+    cmd = f"INSERT INTO {TABLE_DISCOUNT} (id_shop, name, amount) VALUES (%s, %s, %s)"
+    params = (id_shop, name, amount)
+
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+    cursor = db.cursor()
+    try:
+        cursor.execute(cmd , params)
+        db.commit()
+        
+        cmd = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
+        cursor.execute(cmd)
+        result = cursor.fetchone()
+        if result==None:
+            return {"discount_registered":False}
+        else:
+            return {"discount_registered":True}        
+    except :
+        abort(503) 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     app.run("localhost" , 5000 , True)
