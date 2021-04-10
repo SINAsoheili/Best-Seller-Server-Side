@@ -275,5 +275,33 @@ def delete_seller():
     except :
         abort(503)
 
+@app.route('/delete_user' , methods=['GET'])
+def delete_user():
+    id = request.args.get('id_user', None)
+
+    if id==None:
+        abort(400)
+
+    cmd = f"DELETE FROM {TABLE_USER} WHERE id=%s"
+    params = (id,)
+
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+    cursor = db.cursor()
+    try:
+        cursor.execute(cmd, params)
+        db.commit()
+        
+        cmd = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
+        cursor.execute(cmd)
+        result = cursor.fetchone()
+        if result==None:
+            return {"user_deleted":True}
+        else:
+            return {"user_deleted":False}        
+    except :
+        abort(503)
+
 if __name__ == "__main__":
     app.run("localhost" , 5000 , True)
