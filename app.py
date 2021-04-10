@@ -1,6 +1,7 @@
 from flask import Flask, request, abort
-from database_config import DB_SERVER, DB_USER, DB_PASSWD, DB_NAME, TABLE_SHOP, TABLE_SELLER, TABLE_USER
+from database_config import DB_SERVER, DB_USER, DB_PASSWD, DB_NAME, TABLE_SHOP, TABLE_SELLER, TABLE_USER, SALT
 import mysql.connector
+import hashlib
 
 app = Flask(__name__)
 
@@ -10,6 +11,10 @@ def connect_to_database():
         return database
     else:
         return None
+
+def passwd_encrypt(passwd):
+    passwd = passwd+SALT
+    return hashlib.sha256(passwd.encode()).hexdigest()
 
 @app.route('/register_seller' , methods=['GET'])
 def registar_seller():
@@ -22,7 +27,8 @@ def registar_seller():
         abort(400)
 
     #TODO: chek phone is valid
-    #TODO: encrypt passwd
+
+    passwd = passwd_encrypt(passwd)
 
     cmd = f"INSERT INTO {TABLE_SELLER} (name, last_name, phone, passwd) VALUES (%s, %s, %s, %s)"
     params = (name, last_name, phone, passwd)
@@ -91,7 +97,8 @@ def registar_user():
         abort(400)
 
     #TODO: chek phone is valid
-    #TODO: encrypt passwd
+     
+    passwd = passwd_encrypt(passwd)
 
     cmd = f"INSERT INTO {TABLE_USER} (name, last_name, phone, passwd) VALUES (%s, %s, %s, %s)"
     params = (name, last_name, phone, passwd)

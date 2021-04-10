@@ -15,3 +15,5 @@ TABLE_SHOP = "shop"
 TABLE_SHOP_BADGE = "shop_badge"
 TABLE_USER = "user"
 TABLE_USER_QUESTION = "user_question"
+
+SALT = ""
