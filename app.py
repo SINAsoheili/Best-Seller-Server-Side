@@ -16,6 +16,7 @@ def passwd_encrypt(passwd):
     passwd = passwd+SALT
     return hashlib.sha256(passwd.encode()).hexdigest()
 
+
 @app.route('/register_seller' , methods=['GET'])
 def registar_seller():
     name = request.args.get('name', None)
@@ -120,6 +121,37 @@ def registar_user():
     except :
         abort(503) 
 
+@app.route('/register_discount' , methods=['GET'])
+def registar_discount():
+    name = request.args.get('name', None)
+    amount = request.args.get('amount', None)
+    id_shop = request.args.get('id_shop', None)
+
+    if name==None or amount==None or id_shop==None:
+        abort(400)
+
+    cmd = f"INSERT INTO {TABLE_DISCOUNT} (id_shop, name, amount) VALUES (%s, %s, %s)"
+    params = (id_shop, name, amount)
+
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+    cursor = db.cursor()
+    try:
+        cursor.execute(cmd , params)
+        db.commit()
+        
+        cmd = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
+        cursor.execute(cmd)
+        result = cursor.fetchone()
+        if result==None:
+            return {"discount_registered":False}
+        else:
+            return {"discount_registered":True}        
+    except :
+        abort(503) 
+
+
 @app.route('/get_shop_info' , methods=['GET'])
 def get_shop_info():
     id = request.args.get('shop_id', None)
@@ -186,35 +218,6 @@ def get_user_info():
     else:
         abort(500)
 
-@app.route('/register_discount' , methods=['GET'])
-def registar_discount():
-    name = request.args.get('name', None)
-    amount = request.args.get('amount', None)
-    id_shop = request.args.get('id_shop', None)
-
-    if name==None or amount==None or id_shop==None:
-        abort(400)
-
-    cmd = f"INSERT INTO {TABLE_DISCOUNT} (id_shop, name, amount) VALUES (%s, %s, %s)"
-    params = (id_shop, name, amount)
-
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    try:
-        cursor.execute(cmd , params)
-        db.commit()
-        
-        cmd = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
-        cursor.execute(cmd)
-        result = cursor.fetchone()
-        if result==None:
-            return {"discount_registered":False}
-        else:
-            return {"discount_registered":True}        
-    except :
-        abort(503) 
 
 @app.route('/delete_discount' , methods=['GET'])
 def delete_discount():
@@ -241,6 +244,34 @@ def delete_discount():
             return {"discount_deleted":True}
         else:
             return {"discount_deleted":False}        
+    except :
+        abort(503)
+
+@app.route('/delete_seller' , methods=['GET'])
+def delete_seller():
+    id = request.args.get('id_seller', None)
+
+    if id==None:
+        abort(400)
+
+    cmd = f"DELETE FROM {TABLE_SELLER} WHERE id=%s"
+    params = (id,)
+
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+    cursor = db.cursor()
+    try:
+        cursor.execute(cmd, params)
+        db.commit()
+        
+        cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
+        cursor.execute(cmd)
+        result = cursor.fetchone()
+        if result==None:
+            return {"seller_deleted":True}
+        else:
+            return {"seller_deleted":False}        
     except :
         abort(503)
 
