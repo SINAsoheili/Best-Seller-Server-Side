@@ -168,6 +168,13 @@ def delete_user():
     if id==None:
         abort(400)
 
+    cmd = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
+    select_result = select_from_db(cmd)
+    if len(select_result) == 0:
+        exist = False
+    else:
+        exist = True
+
     cmd = f"DELETE FROM {TABLE_USER} WHERE id=%s"
     params = (id,)
 
@@ -175,7 +182,7 @@ def delete_user():
     if delete_result :
         cmd = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
         select_result = select_from_db(cmd)
-        if len(select_result) == 0:
+        if len(select_result) == 0 and exist:
             return {"user_deleted":True}
         else:
             return {"user_deleted":False}        
