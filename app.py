@@ -1,5 +1,5 @@
 from flask import Flask, request, abort
-from database_config import DB_SERVER, DB_USER, DB_PASSWD, DB_NAME, TABLE_SHOP, TABLE_SELLER, TABLE_USER, TABLE_DISCOUNT, SALT
+from database_config import *
 import mysql.connector
 import hashlib
 
@@ -61,7 +61,7 @@ def get_shop_info():
     if id==None :
         abort(400)
     
-    query = f"SELECT * FROM {TABLE_SHOP} WHERE id={id}"
+    query = f"SELECT * FROM {TABLE_SHOP} WHERE {TABLE_SHOP_ID}={id}"
 
     result = select_from_db(query)
     if len(result) == 1:
@@ -77,7 +77,7 @@ def get_seller_info():
     if id==None :
         abort(400)
 
-    query = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
+    query = f"SELECT * FROM {TABLE_SELLER} WHERE {TABLE_SELLER_ID}={id}"
     result = select_from_db(query)
         
     if len(result) == 1:
@@ -93,7 +93,7 @@ def get_user_info():
     if id==None :
         abort(400)
     
-    query = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
+    query = f"SELECT * FROM {TABLE_USER} WHERE {TABLE_USER_ID}={id}"
     result = select_from_db(query)
         
     if len(result) == 1:
@@ -111,20 +111,20 @@ def delete_discount():
     if id_shop==None:
         abort(400)
 
-    query = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
+    query = f"SELECT * FROM {TABLE_DISCOUNT} WHERE {TABLE_DISCOUNT_ID_SHOP}={id_shop}"
     select_result = select_from_db(query)
     if len(select_result) == 0:
         exists = False
     else:
         exists = True
 
-    query = f"DELETE FROM {TABLE_DISCOUNT} WHERE id_shop=%s"
+    query = f"DELETE FROM {TABLE_DISCOUNT} WHERE {TABLE_DISCOUNT_ID_SHOP}=%s"
     params = (id_shop,)
 
     delete_result = delete_from_db(query , params)
     
     if delete_result:
-        query = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
+        query = f"SELECT * FROM {TABLE_DISCOUNT} WHERE {TABLE_DISCOUNT_ID_SHOP}={id_shop}"
         select_result = select_from_db(query)
         if len(select_result) == 0 and exists:
             return {"discount_deleted":True}
@@ -140,19 +140,19 @@ def delete_seller():
     if id==None:
         abort(400)
 
-    cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
+    cmd = f"SELECT * FROM {TABLE_SELLER} WHERE {TABLE_SELLER_ID}={id}"
     select_result = select_from_db(cmd)
     if len(select_result) == 0:
         exist=False
     else:
         exist=True
 
-    cmd = f"DELETE FROM {TABLE_SELLER} WHERE id=%s"
+    cmd = f"DELETE FROM {TABLE_SELLER} WHERE {TABLE_SELLER_ID}=%s"
     params = (id,)
 
     delete_result = delete_from_db(cmd , params)
     if delete_result :
-        cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
+        cmd = f"SELECT * FROM {TABLE_SELLER} WHERE {TABLE_SELLER_ID}={id}"
         select_result = select_from_db(cmd)
         if len(select_result) == 0 and exist:
             return {"seller_deleted":True}
@@ -168,19 +168,19 @@ def delete_user():
     if id==None:
         abort(400)
 
-    cmd = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
+    cmd = f"SELECT * FROM {TABLE_USER} WHERE {TABLE_USER_ID}={id}"
     select_result = select_from_db(cmd)
     if len(select_result) == 0:
         exist = False
     else:
         exist = True
 
-    cmd = f"DELETE FROM {TABLE_USER} WHERE id=%s"
+    cmd = f"DELETE FROM {TABLE_USER} WHERE {TABLE_USER_ID}=%s"
     params = (id,)
 
     delete_result = delete_from_db(cmd , params)
     if delete_result :
-        cmd = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
+        cmd = f"SELECT * FROM {TABLE_USER} WHERE {TABLE_USER_ID}={id}"
         select_result = select_from_db(cmd)
         if len(select_result) == 0 and exist:
             return {"user_deleted":True}
@@ -205,13 +205,13 @@ def registar_seller():
 
     passwd = passwd_encrypt(passwd)
 
-    cmd = f"INSERT INTO {TABLE_SELLER} (name, last_name, phone, passwd) VALUES (%s, %s, %s, %s)"
+    cmd = f"INSERT INTO {TABLE_SELLER} ({TABLE_SELLER_NAME}, {TABLE_SELLER_LAST_NAME}, {TABLE_SELLER_PHONE}, {TABLE_SELLER_PASSWD}) VALUES (%s, %s, %s, %s)"
     params = (name, last_name, phone, passwd)
 
 
     insert_result = insert_to_db(cmd , params)
     if insert_result:
-        cmd = f"SELECT * FROM {TABLE_SELLER} WHERE phone={phone}"
+        cmd = f"SELECT * FROM {TABLE_SELLER} WHERE {TABLE_SELLER_PHONE}={phone}"
         select_result = select_from_db(cmd)
         if len(select_result) == 1:
             id,name,last_name,phone,*_ = select_result[0]
@@ -237,12 +237,12 @@ def registar_shop():
     if name==None or address==None or latitude==None or longitude==None or id_seller==None or id_category==None :
         abort(400)
 
-    cmd = f"INSERT INTO {TABLE_SHOP} (name, address, latitude, longitude, id_seller, id_category, site, description, phone ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    cmd = f"INSERT INTO {TABLE_SHOP} ({TABLE_SHOP_NAME}, {TABLE_SHOP_ADDRESS}, {TABLE_SHOP_LATITUDE}, {TABLE_SHOP_LONGITUDE}, {TABLE_SHOP_ID_SELLER}, {TABLE_SHOP_ID_CATEGORY}, {TABLE_SHOP_SITE}, {TABLE_SHOP_DESCRIPTION}, {TABLE_SHOP_PHONE} ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
     params = (name, address, latitude, longitude, id_seller, id_category, site, description, phone)
     
     insert_result = insert_to_db(cmd , params)
     if insert_result :
-        cmd = f"SELECT * FROM {TABLE_SHOP} WHERE id_seller={id_seller}"
+        cmd = f"SELECT * FROM {TABLE_SHOP} WHERE {TABLE_SHOP_ID_SELLER}={id_seller}"
         select_result = select_from_db(cmd)
         if len(select_result) == 1:
             id, name, address, latitude, longitude, id_seller, id_category, site, description, phone = select_result[0]
@@ -266,12 +266,12 @@ def registar_user():
      
     passwd = passwd_encrypt(passwd)
 
-    cmd = f"INSERT INTO {TABLE_USER} (name, last_name, phone, passwd) VALUES (%s, %s, %s, %s)"
+    cmd = f"INSERT INTO {TABLE_USER} ({TABLE_USER_NAME}, {TABLE_USER_LAST_NAME}, {TABLE_USER_PHONE}, {TABLE_USER_PASSWD}) VALUES (%s, %s, %s, %s)"
     params = (name, last_name, phone, passwd)
 
     insert_result = insert_to_db(cmd , params)
     if insert_result:
-        cmd = f"SELECT * FROM {TABLE_USER} WHERE phone={phone}"
+        cmd = f"SELECT * FROM {TABLE_USER} WHERE {TABLE_USER_PHONE}={phone}"
         select_result = select_from_db(cmd)
         if len(select_result) == 1:
             id, name, last_name, phone, *_ = select_result[0]
@@ -290,12 +290,12 @@ def registar_discount():
     if name==None or amount==None or id_shop==None:
         abort(400)
 
-    cmd = f"INSERT INTO {TABLE_DISCOUNT} (id_shop, name, amount) VALUES (%s, %s, %s)"
+    cmd = f"INSERT INTO {TABLE_DISCOUNT} ({TABLE_DISCOUNT_ID_SHOP}, {TABLE_DISCOUNT_NAME}, {TABLE_DISCOUNT_AMOUNT}) VALUES (%s, %s, %s)"
     params = (id_shop, name, amount)
 
     insert_result = insert_to_db(cmd, params)
     if insert_result:
-        cmd = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
+        cmd = f"SELECT * FROM {TABLE_DISCOUNT} WHERE {TABLE_DISCOUNT_ID_SHOP}={id_shop}"
         select_result = select_from_db(cmd)
         if len(select_result) == 1:
             id_shop,name,amount = select_result[0]
