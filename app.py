@@ -5,6 +5,10 @@ import hashlib
 
 app = Flask(__name__)
 
+def passwd_encrypt(passwd):
+    passwd = passwd+SALT
+    return hashlib.sha256(passwd.encode()).hexdigest()
+
 def connect_to_database():
     database = mysql.connector.connect(host=DB_SERVER, user=DB_USER, password=DB_PASSWD, database=DB_NAME)
     if database.is_connected:
@@ -12,9 +16,64 @@ def connect_to_database():
     else:
         return None
 
-def passwd_encrypt(passwd):
-    passwd = passwd+SALT
-    return hashlib.sha256(passwd.encode()).hexdigest()
+def select_from_db(query):
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+
+    cursor = db.cursor()
+    cursor.execute(query)
+    result = cursor.fetchall()
+    return result
+
+
+@app.route('/get_shop_info' , methods=['GET'])
+def get_shop_info():
+    id = request.args.get('shop_id', None)
+
+    if id==None :
+        abort(400)
+    
+    query = f"SELECT * FROM {TABLE_SHOP} WHERE id={id}"
+
+    result = select_from_db(query)
+    if len(result) == 1:
+        (id, name, address, latitude, longitude, phone, site, description, id_seller, id_category) = result[0]
+        return {"find":True , "shop":{"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}}
+    else :
+        return {"find":False , "shop":{}}
+        
+@app.route('/get_seller_info' , methods=['GET'])
+def get_seller_info():
+    id = request.args.get('seller_id', None)
+
+    if id==None :
+        abort(400)
+
+    query = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
+    result = select_from_db(query)
+        
+    if len(result) == 1:
+        (id, name, last_name, phone, *_) = result[0]
+        return {"find":True , "seller":{"id":id, "name":name, "last_name":last_name , "phone":phone}}
+    else:
+        return {"find":False , "seller":{}}
+
+@app.route('/get_user_info' , methods=['GET'])
+def get_user_info():
+    id = request.args.get('user_id', None)
+
+    if id==None :
+        abort(400)
+    
+    query = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
+    result = select_from_db(query)
+        
+    if len(result) == 1:
+        (id, name, last_name, phone, *_) = result[0]
+        return {"find":True , "user":{"id":id, "name":name, "last_name":last_name , "phone":phone}}
+    else:
+        return {"find":False , "user":{}}
 
 
 @app.route('/register_seller' , methods=['GET'])
@@ -86,10 +145,6 @@ def registar_shop():
     except :
         abort(503)    
 
-
-
-
-
 @app.route('/register_user' , methods=['GET'])
 def registar_user():
     name = request.args.get('name', None)
@@ -154,72 +209,6 @@ def registar_discount():
     except :
         abort(503) 
 
-
-@app.route('/get_shop_info' , methods=['GET'])
-def get_shop_info():
-    id = request.args.get('shop_id', None)
-
-    if id==None :
-        abort(400)
-    
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    cmd = f"SELECT * FROM {TABLE_SHOP} WHERE id={id}"
-    cursor.execute(cmd)
-    result = cursor.fetchall()
-    if len(result) == 0:
-        return {"find":False , "shop":{}}
-    elif len(result) == 1:
-        (id, name, address, latitude, longitude, phone, site, description, id_seller, id_category) = result[0]
-        return {"find":True , "shop":{"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}}
-    else:
-        abort(500)
-
-@app.route('/get_seller_info' , methods=['GET'])
-def get_seller_info():
-    id = request.args.get('seller_id', None)
-
-    if id==None :
-        abort(400)
-    
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
-    cursor.execute(cmd)
-    result = cursor.fetchall()
-    if len(result) == 0:
-        return {"find":False , "seller":{}}
-    elif len(result) == 1:
-        (id, name, last_name, phone, *_) = result[0]
-        return {"find":True , "seller":{"id":id, "name":name, "last_name":last_name , "phone":phone}}
-    else:
-        abort(500)
-
-@app.route('/get_user_info' , methods=['GET'])
-def get_user_info():
-    id = request.args.get('user_id', None)
-
-    if id==None :
-        abort(400)
-    
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    cmd = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
-    cursor.execute(cmd)
-    result = cursor.fetchall()
-    if len(result) == 0:
-        return {"find":False , "user":{}}
-    elif len(result) == 1:
-        (id, name, last_name, phone, *_) = result[0]
-        return {"find":True , "user":{"id":id, "name":name, "last_name":last_name , "phone":phone}}
-    else:
-        abort(500)
 
 
 @app.route('/delete_discount' , methods=['GET'])
