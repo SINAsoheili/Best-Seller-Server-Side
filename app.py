@@ -140,13 +140,21 @@ def delete_seller():
     if id==None:
         abort(400)
 
+    cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
+    select_result = select_from_db(cmd)
+    if len(select_result) == 0:
+        exist=False
+    else:
+        exist=True
+
     cmd = f"DELETE FROM {TABLE_SELLER} WHERE id=%s"
     params = (id,)
 
     delete_result = delete_from_db(cmd , params)
     if delete_result :
-        select_result = cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
-        if len(select_result) == 0:
+        cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
+        select_result = select_from_db(cmd)
+        if len(select_result) == 0 and exist:
             return {"seller_deleted":True}
         else :
             return {"seller_deleted":False}        
