@@ -39,6 +39,19 @@ def delete_from_db(query , params):
     except :
         return False
 
+def insert_to_db(query , params):
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+    cursor = db.cursor()
+
+    try:
+        cursor.execute(query , params)
+        db.commit()
+        return True
+    except :
+        return False
+
 
 
 @app.route('/get_shop_info' , methods=['GET'])
@@ -173,23 +186,18 @@ def registar_seller():
     cmd = f"INSERT INTO {TABLE_SELLER} (name, last_name, phone, passwd) VALUES (%s, %s, %s, %s)"
     params = (name, last_name, phone, passwd)
 
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    
-    try:
-        cursor.execute(cmd , params)
-        db.commit()
-        
+
+    insert_result = insert_to_db(cmd , params)
+    if insert_result:
         cmd = f"SELECT * FROM {TABLE_SELLER} WHERE phone={phone}"
-        cursor.execute(cmd)
-        result = cursor.fetchone()
-        id = result[0]
-        return {"id":id, "name":name , "last_name":last_name , "phone":phone}
-            
-    except :
-        abort(503)    
+        select_result = select_from_db(cmd)
+        if len(select_result) == 1:
+            id,name,last_name,phone = select_result[0]
+            return {"status_register":True , "seller":{"id":id, "name":name , "last_name":last_name , "phone":phone}}
+        else:
+            return {"status_register":False , "seller":{}}
+    else:
+        return {"status_register":False , "seller":{}}   
 
 @app.route('/register_shop' , methods=['GET'])
 def registar_shop():
@@ -210,20 +218,17 @@ def registar_shop():
     cmd = f"INSERT INTO {TABLE_SHOP} (name, address, latitude, longitude, id_seller, id_category, site, description, phone ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
     params = (name, address, latitude, longitude, id_seller, id_category, site, description, phone)
     
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    try:
-        cursor.execute(cmd , params)
-        db.commit()
+    insert_result = insert_to_db(cmd , params)
+    if insert_result :
         cmd = f"SELECT * FROM {TABLE_SHOP} WHERE id_seller={id_seller}"
-        cursor.execute(cmd)
-        result = cursor.fetchone()
-        id = result[0]
-        return {"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}
-    except :
-        abort(503)    
+        select_result = select_from_db(cmd)
+        if len(select_result) == 1:
+            id, name, address, latitude, longitude, id_seller, id_category, site, description, phone = select_result[0]
+            return {"status_register":True , "shop":{"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}}
+        else:
+            return {"status_register":False , "shop":{}}
+    else:
+        return {"status_register":False , "shop":{}}
 
 @app.route('/register_user' , methods=['GET'])
 def registar_user():
@@ -242,22 +247,17 @@ def registar_user():
     cmd = f"INSERT INTO {TABLE_USER} (name, last_name, phone, passwd) VALUES (%s, %s, %s, %s)"
     params = (name, last_name, phone, passwd)
 
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    try:
-        cursor.execute(cmd , params)
-        db.commit()
-        
+    insert_result = insert_to_db(cmd , params)
+    if insert_result:
         cmd = f"SELECT * FROM {TABLE_USER} WHERE phone={phone}"
-        cursor.execute(cmd)
-        result = cursor.fetchone()
-        id = result[0]
-        return {"id":id, "name":name , "last_name":last_name , "phone":phone}
-            
-    except :
-        abort(503) 
+        select_result = select_from_db(cmd)
+        if len(select_result) == 1:
+            id, name, last_name, phone = select_result[0]
+            return {"status_register":True , "user":{"id":id, "name":name , "last_name":last_name , "phone":phone}}
+        else:
+            return {"status_register":False , "user":{}}
+    else:
+        return {"status_register":False , "user":{}}
 
 @app.route('/register_discount' , methods=['GET'])
 def registar_discount():
@@ -271,23 +271,17 @@ def registar_discount():
     cmd = f"INSERT INTO {TABLE_DISCOUNT} (id_shop, name, amount) VALUES (%s, %s, %s)"
     params = (id_shop, name, amount)
 
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    try:
-        cursor.execute(cmd , params)
-        db.commit()
-        
+    insert_result = insert_to_db(cmd, params)
+    if insert_result:
         cmd = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
-        cursor.execute(cmd)
-        result = cursor.fetchone()
-        if result==None:
-            return {"discount_registered":False}
+        select_result = select_from_db(cmd)
+        if len(select_result) == 1:
+            id_shop,name,amount = select_result[0]
+            return {"status_register":True, "discount":{"id_shop":id_shop ,"name":name , "amount":amount }}
         else:
-            return {"discount_registered":True}        
-    except :
-        abort(503) 
+            return {"status_register":False, "discount":{}}
+    else:
+        return {"status_register":False, "discount":{}}
 
 
 
