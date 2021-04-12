@@ -111,6 +111,13 @@ def delete_discount():
     if id_shop==None:
         abort(400)
 
+    query = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
+    select_result = select_from_db(query)
+    if len(select_result) == 0:
+        exists = False
+    else:
+        exists = True
+
     query = f"DELETE FROM {TABLE_DISCOUNT} WHERE id_shop=%s"
     params = (id_shop,)
 
@@ -119,7 +126,7 @@ def delete_discount():
     if delete_result:
         query = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
         select_result = select_from_db(query)
-        if len(select_result) == 0 :
+        if len(select_result) == 0 and exists:
             return {"discount_deleted":True}
         else:
             return {"discount_deleted":False}    
