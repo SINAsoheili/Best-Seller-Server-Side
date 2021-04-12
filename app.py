@@ -26,6 +26,20 @@ def select_from_db(query):
     result = cursor.fetchall()
     return result
 
+def delete_from_db(query , params):
+    db = connect_to_database()
+    if db==None:
+        abort(500)
+
+    cursor = db.cursor()
+    try:
+        cursor.execute(query, params)
+        db.commit()
+        return True
+    except :
+        return False
+
+
 
 @app.route('/get_shop_info' , methods=['GET'])
 def get_shop_info():
@@ -74,6 +88,72 @@ def get_user_info():
         return {"find":True , "user":{"id":id, "name":name, "last_name":last_name , "phone":phone}}
     else:
         return {"find":False , "user":{}}
+
+
+
+@app.route('/delete_discount' , methods=['GET'])
+def delete_discount():
+    id_shop = request.args.get('id_shop', None)
+
+    if id_shop==None:
+        abort(400)
+
+    query = f"DELETE FROM {TABLE_DISCOUNT} WHERE id_shop=%s"
+    params = (id_shop,)
+
+    delete_result = delete_from_db(query , params)
+    
+    if delete_result:
+        query = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
+        select_result = select_from_db(query)
+        if len(select_result) == 0 :
+            return {"discount_deleted":True}
+        else:
+            return {"discount_deleted":False}    
+    else:
+        return {"discount_deleted":False}
+
+@app.route('/delete_seller' , methods=['GET'])
+def delete_seller():
+    id = request.args.get('id_seller', None)
+
+    if id==None:
+        abort(400)
+
+    cmd = f"DELETE FROM {TABLE_SELLER} WHERE id=%s"
+    params = (id,)
+
+    delete_result = delete_from_db(cmd , params)
+    if delete_result :
+        select_result = cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
+        if len(select_result) == 0:
+            return {"seller_deleted":True}
+        else :
+            return {"seller_deleted":False}        
+    else:
+        return {"seller_deleted":False}        
+    
+@app.route('/delete_user' , methods=['GET'])
+def delete_user():
+    id = request.args.get('id_user', None)
+
+    if id==None:
+        abort(400)
+
+    cmd = f"DELETE FROM {TABLE_USER} WHERE id=%s"
+    params = (id,)
+
+    delete_result = delete_from_db(cmd , params)
+    if delete_result :
+        cmd = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
+        select_result = select_from_db(cmd)
+        if len(select_result) == 0:
+            return {"user_deleted":True}
+        else:
+            return {"user_deleted":False}        
+    else:
+        return {"user_deleted":False}
+
 
 
 @app.route('/register_seller' , methods=['GET'])
@@ -210,90 +290,6 @@ def registar_discount():
         abort(503) 
 
 
-
-@app.route('/delete_discount' , methods=['GET'])
-def delete_discount():
-    id_shop = request.args.get('id_shop', None)
-
-    if id_shop==None:
-        abort(400)
-
-    cmd = f"DELETE FROM {TABLE_DISCOUNT} WHERE id_shop=%s"
-    params = (id_shop,)
-
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    try:
-        cursor.execute(cmd, params)
-        db.commit()
-        
-        cmd = f"SELECT * FROM {TABLE_DISCOUNT} WHERE id_shop={id_shop}"
-        cursor.execute(cmd)
-        result = cursor.fetchone()
-        if result==None:
-            return {"discount_deleted":True}
-        else:
-            return {"discount_deleted":False}        
-    except :
-        abort(503)
-
-@app.route('/delete_seller' , methods=['GET'])
-def delete_seller():
-    id = request.args.get('id_seller', None)
-
-    if id==None:
-        abort(400)
-
-    cmd = f"DELETE FROM {TABLE_SELLER} WHERE id=%s"
-    params = (id,)
-
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    try:
-        cursor.execute(cmd, params)
-        db.commit()
-        
-        cmd = f"SELECT * FROM {TABLE_SELLER} WHERE id={id}"
-        cursor.execute(cmd)
-        result = cursor.fetchone()
-        if result==None:
-            return {"seller_deleted":True}
-        else:
-            return {"seller_deleted":False}        
-    except :
-        abort(503)
-
-@app.route('/delete_user' , methods=['GET'])
-def delete_user():
-    id = request.args.get('id_user', None)
-
-    if id==None:
-        abort(400)
-
-    cmd = f"DELETE FROM {TABLE_USER} WHERE id=%s"
-    params = (id,)
-
-    db = connect_to_database()
-    if db==None:
-        abort(500)
-    cursor = db.cursor()
-    try:
-        cursor.execute(cmd, params)
-        db.commit()
-        
-        cmd = f"SELECT * FROM {TABLE_USER} WHERE id={id}"
-        cursor.execute(cmd)
-        result = cursor.fetchone()
-        if result==None:
-            return {"user_deleted":True}
-        else:
-            return {"user_deleted":False}        
-    except :
-        abort(503)
 
 if __name__ == "__main__":
     app.run("localhost" , 5000 , True)
