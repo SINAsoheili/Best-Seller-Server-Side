@@ -252,7 +252,7 @@ def registar_user():
         cmd = f"SELECT * FROM {TABLE_USER} WHERE phone={phone}"
         select_result = select_from_db(cmd)
         if len(select_result) == 1:
-            id, name, last_name, phone = select_result[0]
+            id, name, last_name, phone, *_ = select_result[0]
             return {"status_register":True , "user":{"id":id, "name":name , "last_name":last_name , "phone":phone}}
         else:
             return {"status_register":False , "user":{}}
