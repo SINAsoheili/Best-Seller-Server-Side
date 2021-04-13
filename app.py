@@ -120,7 +120,24 @@ def shop_get_message():
             text = item[2]
             messages.append({"message":text}) 
         return {"find":True , "messages":messages}
+
+@app.route('/user_get_shop_message' , methods=['GET'])
+def user_get_shop_message():
+    id_shop = request.args.get('shop_id', None)
+    id_user = request.args.get('user_id', None)
+
+    if id_shop==None or id_user==None:
+        abort(400)
+    
+    query = f"SELECT * FROM {TABLE_MESSAGE} WHERE {TABLE_MESSAGE_ID_SHOP}={id_shop} AND {TABLE_MESSAGE_ID_USER}={id_user}"
+    result = select_from_db(query)
         
+    if len(result) == 1:
+        id_user, id_shop, text = result[0]
+        return {"find":True , "messages":{"id_user":id_user , "id_shop":id_shop , "text":text }}
+    else:
+        return {"find":False , "messages":{}}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])
