@@ -333,6 +333,31 @@ def registar_discount():
     else:
         return {"status_register":False, "discount":{}}
 
+@app.route('/register_user_message' , methods=['GET'])
+def registar_user_message():
+    id_user = request.args.get('id_user', None)
+    id_shop = request.args.get('id_shop', None)
+    text = request.args.get('text', None)
+
+    if id_user==None or id_shop==None or text==None:
+        abort(400)
+
+    cmd = f"INSERT INTO {TABLE_MESSAGE} ({TABLE_MESSAGE_ID_USER}, {TABLE_MESSAGE_ID_SHOP}, {TABLE_MESSAGE_TEXT}) VALUES (%s, %s, %s)"
+    params = (id_user, id_shop, text)
+
+    insert_result = insert_to_db(cmd, params)
+    if insert_result:
+        cmd = f"SELECT * FROM {TABLE_MESSAGE} WHERE {TABLE_MESSAGE_ID_SHOP}={id_shop} AND {TABLE_MESSAGE_ID_USER}={id_user}"
+        select_result = select_from_db(cmd)
+        if len(select_result) == 1:
+            id_user,id_shop,text = select_result[0]
+            return {"message_register":True, "message":{"id_user":id_user ,"id_shop":id_shop , "text":text }}
+        else:
+            return {"message_register":False, "message":{}}
+    else:
+        return {"message_register":False, "message":{}}
+
+
 
 
 if __name__ == "__main__":
