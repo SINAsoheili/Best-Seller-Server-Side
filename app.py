@@ -102,6 +102,25 @@ def get_user_info():
     else:
         return {"find":False , "user":{}}
 
+@app.route('/shop_get_message' , methods=['GET'])
+def shop_get_message():
+    id = request.args.get('shop_id', None)
+
+    if id==None :
+        abort(400)
+    
+    query = f"SELECT * FROM {TABLE_MESSAGE} WHERE {TABLE_MESSAGE_ID_SHOP}={id}"
+    result = select_from_db(query)
+        
+    if len(result) == 0:
+        return {"find":False , "messages":[]}
+    else:
+        messages = []
+        for item in result:
+            text = item[2]
+            messages.append({"message":text}) 
+        return {"find":True , "messages":messages}
+        
 
 
 @app.route('/delete_discount' , methods=['GET'])
