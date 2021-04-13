@@ -189,6 +189,34 @@ def delete_user():
     else:
         return {"user_deleted":False}
 
+@app.route('/delete_shop' , methods=['GET'])
+def delete_shop():
+    id = request.args.get('id_shop', None)
+
+    if id==None:
+        abort(400)
+
+    cmd = f"SELECT * FROM {TABLE_SHOP} WHERE {TABLE_SHOP_ID}={id}"
+    select_result = select_from_db(cmd)
+    if len(select_result) == 0:
+        exist = False
+    else:
+        exist = True
+
+    cmd = f"DELETE FROM {TABLE_SHOP} WHERE {TABLE_SHOP_ID}=%s"
+    params = (id,)
+
+    delete_result = delete_from_db(cmd , params)
+    if delete_result :
+        cmd = f"SELECT * FROM {TABLE_SHOP} WHERE {TABLE_SHOP_ID}={id}"
+        select_result = select_from_db(cmd)
+        if len(select_result) == 0 and exist:
+            return {"shop_deleted":True}
+        else:
+            return {"shop_deleted":False}        
+    else:
+        return {"shop_deleted":False}
+
 
 
 @app.route('/register_seller' , methods=['GET'])
