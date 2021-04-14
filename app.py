@@ -156,6 +156,25 @@ def get_shop_badge():
 
     return {"badges":badges}
 
+@app.route('/login_user' , methods=['GET'])
+def login_user():
+    phone = request.args.get('phone', None)
+    passwd = request.args.get('passwd', None)
+
+    if phone==None or passwd==None:
+        abort(400)
+    
+    passwd = passwd_encrypt(passwd)
+
+    query = f"SELECT * FROM {TABLE_USER} WHERE {TABLE_USER_PHONE}={phone}"
+    result = select_from_db(query)
+        
+    if len(result) == 1 and passwd == result[0][4]: 
+        id = result[0][0]
+        return {"login":True , "user_id":id}
+    else:
+        return {"login":False , "user_id":-1}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])
