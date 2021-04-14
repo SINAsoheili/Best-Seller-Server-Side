@@ -138,6 +138,24 @@ def user_get_shop_message():
     else:
         return {"find":False , "messages":{}}
 
+@app.route('/get_shop_badge' , methods=['GET'])
+def get_shop_badge():
+    id_shop = request.args.get('shop_id', None)
+
+    if id_shop==None:
+        abort(400)
+
+    query = f"SELECT {TABLE_BADGE_NAME},{TABLE_BADGE_CATEGORY} FROM {TABLE_SHOP_BADGE} INNER JOIN {TABLE_BADGE} ON {TABLE_BADGE}.{TABLE_BADGE_ID}={TABLE_SHOP_BADGE}.{TABLE_SHOP_BADGE_ID_BADGE} WHERE {TABLE_SHOP_BADGE_ID_SHOP}={id_shop}"
+    result = select_from_db(query)
+        
+    badges = []
+    for item in result:    
+        name, category = item
+        b = {"name":name , "category":category}
+        badges.append(b)
+
+    return {"badges":badges}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])
