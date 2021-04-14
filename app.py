@@ -175,6 +175,25 @@ def login_user():
     else:
         return {"login":False , "user_id":-1}
 
+@app.route('/login_seller' , methods=['GET'])
+def login_seller():
+    phone = request.args.get('phone', None)
+    passwd = request.args.get('passwd', None)
+
+    if phone==None or passwd==None:
+        abort(400)
+    
+    passwd = passwd_encrypt(passwd)
+
+    query = f"SELECT * FROM {TABLE_SELLER} WHERE {TABLE_SELLER_PHONE}={phone}"
+    result = select_from_db(query)
+        
+    if len(result) == 1 and passwd == result[0][4]: 
+        id = result[0][0]
+        return {"login":True , "seller_id":id}
+    else:
+        return {"login":False , "seller_id":-1}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])
