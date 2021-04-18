@@ -194,6 +194,26 @@ def login_seller():
     else:
         return {"login":False , "seller_id":-1}
 
+@app.route('/get_category_question' , methods=['GET'])
+def get_category_question():
+    id_category = request.args.get('category_id', None)
+
+    if id_category==None :
+        abort(400)
+    
+    query = f"SELECT {TABLE_QUESTION_CATEGORY_ID_QUESTION},{TABLE_QUESTION_CONTENT} FROM {TABLE_QUESTION} JOIN {TABLE_QUESTION_CATEGORY} ON {TABLE_QUESTION}.{TABLE_QUESTION_ID}={TABLE_QUESTION_CATEGORY_ID_QUESTION} WHERE {TABLE_QUESTION_CATEGORY_ID_CATEGORY}={id_category}"
+    result = select_from_db(query)
+        
+    if len(result) == 0:
+        return {"find":False , "questions":[]}
+    else:
+        ans = []
+        for item in result:
+            id_question,content = item
+            ans.append({"id_question":id_question , "content":content})
+
+        return {"find":True , "questions":ans}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])

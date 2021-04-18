@@ -130,3 +130,4 @@ dmypy.json
 
 #config files
 database_config.py
+.vscode/
