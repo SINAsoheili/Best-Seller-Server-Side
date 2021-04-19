@@ -24,6 +24,8 @@ def select_from_db(query):
     cursor = db.cursor()
     cursor.execute(query)
     result = cursor.fetchall()
+    cursor.close()
+    db.close()
     return result
 
 def delete_from_db(query , params):
@@ -38,6 +40,9 @@ def delete_from_db(query , params):
         return True
     except :
         return False
+    finally:
+        cursor.close()
+        db.close()
 
 def insert_to_db(query , params):
     db = connect_to_database()
@@ -51,6 +56,9 @@ def insert_to_db(query , params):
         return True
     except :
         return False
+    finally:
+        cursor.close()
+        db.closes()
 
 
 
