@@ -226,6 +226,23 @@ def get_category_question():
 
         return {"find":True , "questions":ans}
 
+@app.route('/check_user_ans_question' , methods=['GET'])
+def check_user_ans_question():
+    id_user = request.args.get('id_user', None)
+    id_shop = request.args.get('id_shop', None)
+
+    if id_user==None or id_shop==None :
+        abort(400)
+
+    cmd = f"SELECT * FROM {TABLE_USER_QUESTION} WHERE {TABLE_USER_QUESTION_ID_SHOP} = {id_shop} AND {TABLE_USER_QUESTION_ID_USER} = {id_user}"
+
+    select_result = select_from_db(cmd)
+
+    if len(select_result) > 0:
+        return {"answered":True}
+    else:
+        return {"answered":False}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])
