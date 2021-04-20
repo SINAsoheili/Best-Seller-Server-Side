@@ -44,21 +44,25 @@ def delete_from_db(query , params):
         cursor.close()
         db.close()
 
-def insert_to_db(query , params):
+def insert_to_db(query , params , multiple=False):
     db = connect_to_database()
     if db==None:
         abort(500)
     cursor = db.cursor()
 
     try:
-        cursor.execute(query , params)
+        if multiple:
+            cursor.executemany(query, params)
+        else:
+            cursor.execute(query , params)
+        
         db.commit()
         return True
     except :
         return False
     finally:
         cursor.close()
-        db.closes()
+        db.close()
 
 
 
@@ -477,6 +481,29 @@ def registar_user_message():
     else:
         return {"message_register":False, "message":{}}
 
+@app.route('/submit_question' , methods=['GET'])
+def submit_question():
+    id_user = request.args.get('id_user', None)
+    id_shop = request.args.get('id_shop', None)
+
+    if id_user==None or id_shop==None :
+        abort(400)
+
+    question_answer = dict(request.args.items())
+    question_answer.pop('id_user')
+    question_answer.pop('id_shop')
+
+    values = []
+    for id_question,score in question_answer.items():
+        values.append((id_user,id_shop,id_question,score))
+
+    cmd = f"INSERT INTO {TABLE_USER_QUESTION} ({TABLE_USER_QUESTION_ID_USER}, {TABLE_USER_QUESTION_ID_SHOP}, {TABLE_USER_QUESTION_ID_QUESTION}, {TABLE_USER_QUESTION_SCORE}) VALUES (%s, %s, %s, %s)"
+
+    insert_result = insert_to_db(cmd, values , True)
+    if insert_result:
+        return {"registered":True}
+    else:
+        return {"registered":False}
 
 
 
