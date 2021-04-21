@@ -10,7 +10,7 @@ def passwd_encrypt(passwd):
     return hashlib.sha256(passwd.encode()).hexdigest()
 
 def connect_to_database():
-    database = mysql.connector.connect(host=DB_SERVER, user=DB_USER, password=DB_PASSWD, database=DB_NAME)
+    database = mysql.connector.connect(host=DB_SERVER, user=DB_USER, password=DB_PASSWD, database=DB_NAME, charset='utf8')
     if database.is_connected:
         return database
     else:
