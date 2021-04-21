@@ -243,6 +243,20 @@ def check_user_ans_question():
     else:
         return {"answered":False}
 
+@app.route('/get_categories_list' , methods=['GET'])
+def get_categories_list():
+
+    query = f"SELECT * FROM {TABLE_CATEGORY}"
+    result = select_from_db(query)
+        
+    categories = []
+    for item in result:    
+        id, name = item
+        b = {"id":id , "name":name}
+        categories.append(b)
+
+    return {"categories":categories}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])
