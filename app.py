@@ -257,6 +257,23 @@ def get_categories_list():
 
     return {"categories":categories}
 
+@app.route('/get_category_criteria' , methods=['GET'])
+def get_category_criteria():
+    id_category = request.args.get('category_id', None)
+
+    if id_category==None:
+        abort(400)
+
+    query = f"SELECT DISTINCT {TABLE_QUESTION_CRITERIA} FROM {TABLE_QUESTION} JOIN {TABLE_QUESTION_CATEGORY} WHERE {TABLE_QUESTION_CATEGORY}.{TABLE_QUESTION_CATEGORY_ID_CATEGORY}={id_category}"
+    result = select_from_db(query)
+
+    resp = []
+    for i in result:
+        resp.append(i[0])
+
+
+    return {"criterias":resp}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])
