@@ -274,6 +274,22 @@ def get_category_criteria():
 
     return {"criterias":resp}
 
+@app.route('/get_statistic' , methods=['GET'])
+def get_statistic():
+    id_shop = request.args.get('shop_id', None)
+
+    if id_shop==None:
+        abort(400)
+
+    query = f"SELECT SUM({TABLE_USER_QUESTION_SCORE}) as sum , {TABLE_QUESTION_CRITERIA} FROM {TABLE_USER_QUESTION} JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} WHERE {TABLE_USER_QUESTION_ID_SHOP} = {id_shop} GROUP BY {TABLE_QUESTION_CRITERIA}"
+    result = select_from_db(query)
+
+    resp = []
+    for i in result:
+        resp.append( { i[1] : float(i[0]) } )
+
+    return {"statistic":resp}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])
