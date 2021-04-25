@@ -290,6 +290,26 @@ def get_statistic():
 
     return {"statistic":resp}
 
+@app.route('/search_shop' , methods=['GET'])
+def search_shop():
+    id_category = request.args.get('category_id', None)
+    criteria = request.args.get('criteria', None)
+
+    if id_category==None or criteria==None:
+        abort(400)
+
+    query = f"SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id , {TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name , SUM({TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_SCORE}) as uscore , {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} as qcriteria FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID}  JOIN {TABLE_USER_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP} = {TABLE_SHOP}.{TABLE_SHOP_ID}  JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} WHERE {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} = '{criteria}' AND {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} GROUP BY {TABLE_QUESTION_CRITERIA} , shop_id ORDER BY uscore DESC"
+    print(query)
+    result = select_from_db(query)
+
+    resp = []
+    for i in result:
+        cat_name, shop_id, shop_name, uscore, qcriteria = i
+        resp.append({"shop_id":shop_id ,"shop_name":shop_name})
+
+
+    return {"shop_list":resp}
+
 
 
 @app.route('/delete_discount' , methods=['GET'])
