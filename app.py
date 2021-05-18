@@ -133,6 +133,22 @@ def shop_get_message():
             messages.append({"message":text}) 
         return {"find":True , "messages":messages}
 
+@app.route('/check_user_has_shop' , methods=['GET'])
+def check_user_has_shop():
+    id = request.args.get('seller_id', None)
+
+    if id==None :
+        abort(400)
+    
+    query = f"SELECT * FROM {TABLE_SHOP} WHERE {TABLE_SHOP_ID_SELLER}={id}"
+    result = select_from_db(query)
+        
+    if len(result) == 1:
+        (id, name, address, latitude, longitude, phone, site, description, id_seller, id_category) = result[0]
+        return {"find":True , "shop":{"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}}
+    else:
+        return {"find":False , "shop":{}}
+
 @app.route('/user_get_shop_message' , methods=['GET'])
 def user_get_shop_message():
     id_shop = request.args.get('shop_id', None)
