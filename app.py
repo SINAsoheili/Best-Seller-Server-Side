@@ -98,6 +98,22 @@ def get_shop_discount():
     else :
         return {"find":False , "discount":{}}
 
+@app.route('/check_user_has_discount' , methods=['GET'])
+def check_user_has_discount():
+    id_user = request.args.get('user_id', None)
+    id_shop = request.args.get('shop_id', None)
+
+    if id_user==None or id_shop==None: 
+        abort(400)
+    
+    query = f"SELECT * FROM {TABLE_DISCOUNT_USER} WHERE {TABLE_DISCOUNT_USER_ID_DISCOUNT}={id_shop} AND {TABLE_DISCOUNT_USER_ID_USER}={id_user}"
+
+    result = select_from_db(query)
+    if len(result) == 1:
+        return {"discount_enable":True}
+    else :
+        return {"discount_enable":False}
+
 @app.route('/get_seller_info' , methods=['GET'])
 def get_seller_info():
     id = request.args.get('seller_id', None)
