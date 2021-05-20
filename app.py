@@ -82,6 +82,22 @@ def get_shop_info():
     else :
         return {"find":False , "shop":{}}
         
+@app.route('/get_shop_discount' , methods=['GET'])
+def get_shop_discount():
+    id = request.args.get('shop_id', None)
+
+    if id==None :
+        abort(400)
+    
+    query = f"SELECT * FROM {TABLE_DISCOUNT} WHERE {TABLE_DISCOUNT_ID_SHOP}={id}"
+
+    result = select_from_db(query)
+    if len(result) == 1:
+        (id_shop, name, amount) = result[0]
+        return {"find":True , "discount":{"id_shop":id_shop, "name":name, "amount":amount}}
+    else :
+        return {"find":False , "discount":{}}
+
 @app.route('/get_seller_info' , methods=['GET'])
 def get_seller_info():
     id = request.args.get('seller_id', None)
