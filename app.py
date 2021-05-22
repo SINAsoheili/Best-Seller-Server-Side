@@ -334,7 +334,7 @@ def get_statistic():
 
     resp = []
     for i in result:
-        resp.append( { i[1] : float(i[0]) } )
+        resp.append( { "name":i[1], "amount":float(i[0]) } )
 
     return {"statistic":resp}
 
