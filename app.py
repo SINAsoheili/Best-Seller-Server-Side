@@ -38,7 +38,7 @@ def delete_from_db(query , params):
         cursor.execute(query, params)
         db.commit()
         return True
-    except :
+    except Exception as e:
         return False
     finally:
         cursor.close()
@@ -472,6 +472,37 @@ def delete_shop():
             return {"shop_deleted":False}        
     else:
         return {"shop_deleted":False}
+
+@app.route('/user_used_discount_code' , methods=['GET'])
+def user_used_discount_code():
+    shop_id = request.args.get('id_shop', None)
+    user_id = request.args.get('id_user', None)
+
+    if shop_id==None or user_id==None:
+        abort(400)
+
+    cmd = f"SELECT * FROM {TABLE_DISCOUNT_USER} WHERE {TABLE_DISCOUNT_USER_ID_USER}={user_id} AND {TABLE_DISCOUNT_USER_ID_DISCOUNT}={shop_id}"
+    select_result = select_from_db(cmd)
+    if len(select_result) == 0:
+        exist = False
+    else:
+        exist = True
+    
+    cmd = f"DELETE FROM {TABLE_DISCOUNT_USER} WHERE {TABLE_DISCOUNT_USER_ID_USER}=%s AND {TABLE_DISCOUNT_USER_ID_DISCOUNT}=%s"
+    params = (user_id, shop_id)
+
+    delete_result = delete_from_db(cmd , params)
+    
+    if delete_result :
+        cmd = f"SELECT * FROM {TABLE_DISCOUNT_USER} WHERE {TABLE_DISCOUNT_USER_ID_USER}={user_id} AND {TABLE_DISCOUNT_USER_ID_DISCOUNT}={shop_id}"
+        select_result = select_from_db(cmd)
+
+        if len(select_result) == 0 and exist:
+            return {"user_discount_deleted":True}
+        else:
+            return {"user_discount_deleted":False}        
+    else:
+        return {"user_discount_deleted":False}
 
 
 
