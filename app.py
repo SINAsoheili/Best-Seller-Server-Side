@@ -162,7 +162,7 @@ def shop_get_message():
         messages = []
         for item in result:
             text = item[2]
-            messages.append({"message":text}) 
+            messages.append({"text":text}) 
         return {"find":True , "messages":messages}
 
 @app.route('/check_user_has_shop' , methods=['GET'])
