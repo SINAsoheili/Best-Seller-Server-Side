@@ -346,14 +346,15 @@ def search_shop():
     if id_category==None or criteria==None:
         abort(400)
 
-    query = f"SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id , {TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name , SUM({TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_SCORE}) as uscore , {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} as qcriteria FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID}  JOIN {TABLE_USER_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP} = {TABLE_SHOP}.{TABLE_SHOP_ID}  JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} WHERE {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} = '{criteria}' AND {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} GROUP BY {TABLE_QUESTION_CRITERIA} , shop_id ORDER BY uscore DESC"
+    query = f'''SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id , {TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name , {TABLE_SHOP}.{TABLE_SHOP_ADDRESS} as shop_address , {TABLE_SHOP}.{TABLE_SHOP_LATITUDE} as shop_latitude , {TABLE_SHOP}.{TABLE_SHOP_LONGITUDE} as shop_longitude , {TABLE_SHOP}.{TABLE_SHOP_PHONE} as shop_phone , {TABLE_SHOP}.{TABLE_SHOP_SITE} as shop_site, {TABLE_SHOP}.{TABLE_SHOP_DESCRIPTION} as shop_description , {TABLE_SHOP}.{TABLE_SHOP_ID_SELLER} as shop_id_seller  , {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} as shop_id_category , SUM({TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_SCORE}) as uscore , {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} as qcriteria 
+FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID}  JOIN {TABLE_USER_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP} = {TABLE_SHOP}.{TABLE_SHOP_ID}  JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} WHERE {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} = '{criteria}' AND {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} GROUP BY {TABLE_QUESTION_CRITERIA} , shop_id ORDER BY uscore DESC'''
     print(query)
     result = select_from_db(query)
 
     resp = []
     for i in result:
-        cat_name, shop_id, shop_name, uscore, qcriteria = i
-        resp.append({"shop_id":shop_id ,"shop_name":shop_name})
+        cat_name, id, name, address, latitude, longitude, phone, site, description, id_seller, id_category , uscore, qcriteria= i
+        resp.append({"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone})
 
 
     return {"shop_list":resp}
