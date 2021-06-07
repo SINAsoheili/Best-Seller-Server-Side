@@ -1,4 +1,5 @@
 from flask import Flask, request, abort
+from flask.wrappers import Response
 from database_config import *
 import mysql.connector
 import hashlib
@@ -113,6 +114,31 @@ def check_user_has_discount():
         return {"discount_enable":True}
     else :
         return {"discount_enable":False}
+
+
+@app.route('/user_discount_list' , methods=['GET'])
+def user_discount_list():
+    id_user = request.args.get('user_id', None)
+
+    if id_user==None: 
+        abort(400)
+    
+
+    query = f'''SELECT {TABLE_DISCOUNT}.{TABLE_DISCOUNT_ID_SHOP}, {TABLE_DISCOUNT}.{TABLE_DISCOUNT_NAME} , {TABLE_DISCOUNT}.{TABLE_DISCOUNT_AMOUNT} , {TABLE_SHOP}.{TABLE_SHOP_ID},
+{TABLE_SHOP}.{TABLE_SHOP_NAME} , {TABLE_SHOP}.{TABLE_SHOP_ADDRESS} , {TABLE_SHOP}.{TABLE_SHOP_LATITUDE} , {TABLE_SHOP}.{TABLE_SHOP_LONGITUDE} , {TABLE_SHOP}.{TABLE_SHOP_PHONE} , {TABLE_SHOP}.{TABLE_SHOP_SITE} , {TABLE_SHOP}.{TABLE_SHOP_DESCRIPTION} , {TABLE_SHOP}.{TABLE_SHOP_ID_SELLER} , {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY}  
+FROM {TABLE_DISCOUNT_USER} JOIN {TABLE_DISCOUNT} ON {TABLE_DISCOUNT_USER}.{TABLE_DISCOUNT_USER_ID_DISCOUNT} = {TABLE_DISCOUNT}.{TABLE_DISCOUNT_ID_SHOP} JOIN {TABLE_SHOP} ON {TABLE_SHOP}.{TABLE_SHOP_ID} = {TABLE_DISCOUNT}.{TABLE_DISCOUNT_ID_SHOP} WHERE {TABLE_DISCOUNT_USER}.{TABLE_MESSAGE_ID_USER} = {id_user}'''
+
+
+    result = select_from_db(query)
+    response = []
+    for i in result :
+        (id_shop, name, amount , id, name, address, latitude, longitude, phone, site, description, id_seller, id_category) = i
+        response.append( {"discount":{"id_shop":id_shop, "name":name, "amount":amount} , 
+                          "shop":{"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}
+                         } 
+                        )
+    return {"discounts":response}
+
 
 @app.route('/get_seller_info' , methods=['GET'])
 def get_seller_info():
