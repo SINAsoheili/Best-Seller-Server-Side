@@ -220,9 +220,9 @@ def user_get_shop_message():
         
     if len(result) == 1:
         id_user, id_shop, text = result[0]
-        return {"find":True , "messages":{"id_user":id_user , "id_shop":id_shop , "text":text }}
+        return {"find":True , "message":{"id_user":id_user , "id_shop":id_shop , "text":text }}
     else:
-        return {"find":False , "messages":{}}
+        return {"find":False , "message":{}}
 
 @app.route('/get_shop_badge' , methods=['GET'])
 def get_shop_badge():
