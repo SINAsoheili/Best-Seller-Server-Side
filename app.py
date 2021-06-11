@@ -695,7 +695,26 @@ def submit_question():
     else:
         return {"registered":False}
 
+@app.route('/user_answered_question' , methods=['GET'])
+def get_user_answered_question():
+    id_user = request.args.get('id_user', None)
+    id_shop = request.args.get('id_shop', None)
 
+    if id_user==None or id_shop==None :
+        abort(400)
+
+    cmd = f'''SELECT {TABLE_QUESTION}.{TABLE_QUESTION_ID} , {TABLE_QUESTION}.{TABLE_QUESTION_CONTENT}, {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_SCORE} FROM {TABLE_USER_QUESTION} 
+JOIN {TABLE_USER} ON {TABLE_USER}.{TABLE_USER_ID} = {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_USER} 
+JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} 
+WHERE {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP}={id_shop} AND {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_USER} ={id_user}'''
+    
+    ans = select_from_db(cmd)
+    result = []
+    for item in ans : 
+        id_question,content, score = item
+        result.append({"id_question":id_question , "content":content , "score":score})
+    
+    return {"result":result}
 
 if __name__ == "__main__":
     app.run("localhost" , 5000 , True)
