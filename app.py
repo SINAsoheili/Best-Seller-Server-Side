@@ -724,11 +724,11 @@ def delete_user_survey():
     if id_user==None or id_shop==None :
         abort(400)
 
-    cmd = "DELETE FROM {TABLE_MESSAGE} WHERE {TABLE_MESSAGE}.{TABLE_MESSAGE_ID_USER} = %s AND {TABLE_MESSAGE}.{TABLE_MESSAGE_ID_SHOP}=%s"
+    cmd = f"DELETE FROM {TABLE_MESSAGE} WHERE {TABLE_MESSAGE}.{TABLE_MESSAGE_ID_USER}=%s AND {TABLE_MESSAGE}.{TABLE_MESSAGE_ID_SHOP}=%s"
     params = (id_user, id_shop)
     message_result = delete_from_db(cmd , params)
 
-    cmd = "DELETE FROM {TABLE_USER_QUESTION} WHERE {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_USER} = %s AND {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP}=%s"
+    cmd = f"DELETE FROM {TABLE_USER_QUESTION} WHERE {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_USER}=%s AND {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP}=%s"
     params = (id_user, id_shop)
     user_question_result=delete_from_db(cmd , params)
     if((message_result == True) and (user_question_result == True)) :
