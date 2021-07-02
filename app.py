@@ -647,6 +647,23 @@ def registar_discount():
     else:
         return {"status_register":False, "discount":{}}
 
+@app.route('/register_user_discount' , methods=['GET'])
+def registar_user_discount():
+    userId = request.args.get('id_user', None)
+    discountId = request.args.get('id_discount', None)
+
+    if userId==None or discountId==None:
+        abort(400)
+
+    cmd = f"INSERT INTO {TABLE_DISCOUNT_USER} ({TABLE_DISCOUNT_USER_ID_USER}, {TABLE_DISCOUNT_USER_ID_DISCOUNT}) VALUES (%s, %s)"
+    params = (userId, discountId)
+
+    insert_result = insert_to_db(cmd, params)
+    if insert_result:
+        return {"discount_register":True}
+    else:
+        return {"discount_register":False}
+
 @app.route('/register_user_message' , methods=['GET'])
 def registar_user_message():
     id_user = request.args.get('id_user', None)
