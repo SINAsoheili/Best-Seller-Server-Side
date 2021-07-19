@@ -368,15 +368,16 @@ def get_statistic():
 def search_shop():
     id_category = request.args.get('category_id', None)
     id_criteria = request.args.get('criteria_id', None)
+    city = request.args.get('city', None)
     name = request.args.get('shop_name', None)
-
-    if id_category==None or id_criteria==None:
+    
+    if id_category==None or id_criteria==None or city==None: 
         abort(400)
 
     if name == None:
-        query = f'''SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id , {TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name , {TABLE_SHOP}.{TABLE_SHOP_ADDRESS} as shop_address , {TABLE_SHOP}.{TABLE_SHOP_LATITUDE} as shop_latitude , {TABLE_SHOP}.{TABLE_SHOP_LONGITUDE} as shop_longitude , {TABLE_SHOP}.{TABLE_SHOP_PHONE} as shop_phone , {TABLE_SHOP}.{TABLE_SHOP_SITE} as shop_site, {TABLE_SHOP}.{TABLE_SHOP_DESCRIPTION} as shop_description , {TABLE_SHOP}.{TABLE_SHOP_ID_SELLER} as shop_id_seller  , {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} as shop_id_category , SUM({TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_SCORE}) as uscore , {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} as qcriteria FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID}  JOIN {TABLE_USER_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP} = {TABLE_SHOP}.{TABLE_SHOP_ID}  JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} WHERE {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} = {id_criteria} AND {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} GROUP BY {TABLE_QUESTION_CRITERIA} , shop_id ORDER BY uscore DESC'''
+        query = f'''SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id , {TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name , {TABLE_SHOP}.{TABLE_SHOP_ADDRESS} as shop_address , {TABLE_SHOP}.{TABLE_SHOP_LATITUDE} as shop_latitude , {TABLE_SHOP}.{TABLE_SHOP_LONGITUDE} as shop_longitude , {TABLE_SHOP}.{TABLE_SHOP_PHONE} as shop_phone , {TABLE_SHOP}.{TABLE_SHOP_SITE} as shop_site, {TABLE_SHOP}.{TABLE_SHOP_DESCRIPTION} as shop_description , {TABLE_SHOP}.{TABLE_SHOP_ID_SELLER} as shop_id_seller  , {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} as shop_id_category , SUM({TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_SCORE}) as uscore , {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} as qcriteria FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID}  JOIN {TABLE_USER_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP} = {TABLE_SHOP}.{TABLE_SHOP_ID}  JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} WHERE {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} = {id_criteria} AND {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} AND {TABLE_SHOP}.{TABLE_SHOP_CITY} = '{city}' GROUP BY {TABLE_QUESTION_CRITERIA} , shop_id ORDER BY uscore DESC'''
     else:
-        query = f'''SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id , {TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name , {TABLE_SHOP}.{TABLE_SHOP_ADDRESS} as shop_address , {TABLE_SHOP}.{TABLE_SHOP_LATITUDE} as shop_latitude , {TABLE_SHOP}.{TABLE_SHOP_LONGITUDE} as shop_longitude , {TABLE_SHOP}.{TABLE_SHOP_PHONE} as shop_phone , {TABLE_SHOP}.{TABLE_SHOP_SITE} as shop_site, {TABLE_SHOP}.{TABLE_SHOP_DESCRIPTION} as shop_description , {TABLE_SHOP}.{TABLE_SHOP_ID_SELLER} as shop_id_seller  , {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} as shop_id_category , SUM({TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_SCORE}) as uscore , {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} as qcriteria FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID}  JOIN {TABLE_USER_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP} = {TABLE_SHOP}.{TABLE_SHOP_ID}  JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} WHERE {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} = {id_criteria} AND {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} AND {TABLE_SHOP}.{TABLE_SHOP_NAME} LIKE '%{name}%' GROUP BY {TABLE_QUESTION_CRITERIA} , shop_id ORDER BY uscore DESC'''
+        query = f'''SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id , {TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name , {TABLE_SHOP}.{TABLE_SHOP_ADDRESS} as shop_address , {TABLE_SHOP}.{TABLE_SHOP_LATITUDE} as shop_latitude , {TABLE_SHOP}.{TABLE_SHOP_LONGITUDE} as shop_longitude , {TABLE_SHOP}.{TABLE_SHOP_PHONE} as shop_phone , {TABLE_SHOP}.{TABLE_SHOP_SITE} as shop_site, {TABLE_SHOP}.{TABLE_SHOP_DESCRIPTION} as shop_description , {TABLE_SHOP}.{TABLE_SHOP_ID_SELLER} as shop_id_seller  , {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} as shop_id_category , SUM({TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_SCORE}) as uscore , {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} as qcriteria FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID}  JOIN {TABLE_USER_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP} = {TABLE_SHOP}.{TABLE_SHOP_ID}  JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} WHERE {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} = {id_criteria} AND {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} AND {TABLE_SHOP}.{TABLE_SHOP_CITY} = '{city}' AND {TABLE_SHOP}.{TABLE_SHOP_NAME} LIKE '%{name}%' GROUP BY {TABLE_QUESTION_CRITERIA} , shop_id ORDER BY uscore DESC'''
 
     print(query)
     result = select_from_db(query)
@@ -575,16 +576,17 @@ def registar_shop():
     longitude = request.args.get('longitude', None)
     id_seller = request.args.get('id_seller', None)
     id_category = request.args.get('id_category', None)
+    city = request.args.get('city', None)
     #optional 
     site = request.args.get('site', None)
     description = request.args.get('description', None)
     phone = request.args.get('phone', None)
 
-    if name==None or address==None or latitude==None or longitude==None or id_seller==None or id_category==None :
+    if name==None or address==None or latitude==None or longitude==None or id_seller==None or id_category==None or city==None:
         abort(400)
 
-    cmd = f"INSERT INTO {TABLE_SHOP} ({TABLE_SHOP_NAME}, {TABLE_SHOP_ADDRESS}, {TABLE_SHOP_LATITUDE}, {TABLE_SHOP_LONGITUDE}, {TABLE_SHOP_ID_SELLER}, {TABLE_SHOP_ID_CATEGORY}, {TABLE_SHOP_SITE}, {TABLE_SHOP_DESCRIPTION}, {TABLE_SHOP_PHONE} ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    params = (name, address, latitude, longitude, id_seller, id_category, site, description, phone)
+    cmd = f"INSERT INTO {TABLE_SHOP} ({TABLE_SHOP_NAME}, {TABLE_SHOP_ADDRESS}, {TABLE_SHOP_LATITUDE}, {TABLE_SHOP_LONGITUDE}, {TABLE_SHOP_ID_SELLER}, {TABLE_SHOP_ID_CATEGORY}, {TABLE_SHOP_SITE}, {TABLE_SHOP_DESCRIPTION}, {TABLE_SHOP_PHONE} , {TABLE_SHOP_CITY}) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    params = (name, address, latitude, longitude, id_seller, id_category, site, description, phone , city)
     
     insert_result = insert_to_db(cmd , params)
     if insert_result :
