@@ -593,7 +593,7 @@ def registar_shop():
         cmd = f"SELECT * FROM {TABLE_SHOP} WHERE {TABLE_SHOP_ID_SELLER}={id_seller}"
         select_result = select_from_db(cmd)
         if len(select_result) == 1:
-            id, name, address, latitude, longitude, phone, site, description, id_seller, id_category = select_result[0]
+            id, name, address, latitude, longitude, phone, site, description, id_seller, id_category , city = select_result[0]
             return {"status_register":True , "shop":{"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}}
         else:
             return {"status_register":False , "shop":{}}
