@@ -379,16 +379,28 @@ def search_shop():
     else:
         query = f'''SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id , {TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name , {TABLE_SHOP}.{TABLE_SHOP_ADDRESS} as shop_address , {TABLE_SHOP}.{TABLE_SHOP_LATITUDE} as shop_latitude , {TABLE_SHOP}.{TABLE_SHOP_LONGITUDE} as shop_longitude , {TABLE_SHOP}.{TABLE_SHOP_PHONE} as shop_phone , {TABLE_SHOP}.{TABLE_SHOP_SITE} as shop_site, {TABLE_SHOP}.{TABLE_SHOP_DESCRIPTION} as shop_description , {TABLE_SHOP}.{TABLE_SHOP_ID_SELLER} as shop_id_seller  , {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} as shop_id_category , SUM({TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_SCORE}) as uscore , {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} as qcriteria FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID}  JOIN {TABLE_USER_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_SHOP} = {TABLE_SHOP}.{TABLE_SHOP_ID}  JOIN {TABLE_QUESTION} ON {TABLE_USER_QUESTION}.{TABLE_USER_QUESTION_ID_QUESTION} = {TABLE_QUESTION}.{TABLE_QUESTION_ID} WHERE {TABLE_QUESTION}.{TABLE_QUESTION_CRITERIA} = {id_criteria} AND {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} AND {TABLE_SHOP}.{TABLE_SHOP_CITY} = '{city}' AND {TABLE_SHOP}.{TABLE_SHOP_NAME} LIKE '%{name}%' GROUP BY {TABLE_QUESTION_CRITERIA} , shop_id ORDER BY uscore DESC'''
 
-    print(query)
+    print(">>>>"+query)
     result = select_from_db(query)
 
-    resp = []
-    for i in result:
-        cat_name, id, name, address, latitude, longitude, phone, site, description, id_seller, id_category , uscore, qcriteria= i
-        resp.append({"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone})
+    if len(result) == 0:    
+        if name==None: 
+            query = f'''SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id ,{TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name ,{TABLE_SHOP}.{TABLE_SHOP_ADDRESS} as shop_address , {TABLE_SHOP}.{TABLE_SHOP_LATITUDE} as shop_latitude , {TABLE_SHOP}.{TABLE_SHOP_LONGITUDE} as shop_longitude , {TABLE_SHOP}.{TABLE_SHOP_PHONE} as shop_phone , {TABLE_SHOP}.{TABLE_SHOP_SITE} as shop_site,{TABLE_SHOP}.{TABLE_SHOP_DESCRIPTION} as shop_description , {TABLE_SHOP}.{TABLE_SHOP_ID_SELLER} as shop_id_seller  , {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} as shop_id_category FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} WHERE {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} AND {TABLE_SHOP}.{TABLE_SHOP_CITY} = '{city}' GROUP BY shop_id'''
+        else:
+            query = f'''SELECT {TABLE_CATEGORY}.{TABLE_CATEGORY_NAME} as cat_name , {TABLE_SHOP}.{TABLE_SHOP_ID} as shop_id , {TABLE_SHOP}.{TABLE_SHOP_NAME} as shop_name , {TABLE_SHOP}.{TABLE_SHOP_ADDRESS} as shop_address , {TABLE_SHOP}.{TABLE_SHOP_LATITUDE} as shop_latitude , {TABLE_SHOP}.{TABLE_SHOP_LONGITUDE} as shop_longitude , {TABLE_SHOP}.{TABLE_SHOP_PHONE} as shop_phone , {TABLE_SHOP}.{TABLE_SHOP_SITE} as shop_site, {TABLE_SHOP}.{TABLE_SHOP_DESCRIPTION} as shop_description , {TABLE_SHOP}.{TABLE_SHOP_ID_SELLER} as shop_id_seller  , {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} as shop_id_category FROM {TABLE_SHOP} JOIN {TABLE_CATEGORY} ON {TABLE_SHOP}.{TABLE_SHOP_ID_CATEGORY} = {TABLE_CATEGORY}.{TABLE_CATEGORY_ID}  WHERE {TABLE_CATEGORY}.{TABLE_CATEGORY_ID} = {id_category} AND {TABLE_SHOP}.{TABLE_SHOP_CITY} = '{city}' AND {TABLE_SHOP}.{TABLE_SHOP_NAME} LIKE '%{name}%' GROUP BY shop_id'''
+        print("<<<<<"+query)       
+        result = select_from_db(query)
+        resp = []
+        for i in result:
+            cat_name, id, name, address, latitude, longitude, phone, site, description, id_seller, id_category = i
+            resp.append({"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone})
+        return {"shop_list":resp}
 
-
-    return {"shop_list":resp}
+    else:        
+        resp = []
+        for i in result:
+            cat_name, id, name, address, latitude, longitude, phone, site, description, id_seller, id_category , uscore, qcriteria= i
+            resp.append({"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone})
+        return {"shop_list":resp}
 
 
 
