@@ -202,7 +202,7 @@ def check_user_has_shop():
     result = select_from_db(query)
         
     if len(result) == 1:
-        (id, name, address, latitude, longitude, phone, site, description, id_seller, id_category) = result[0]
+        (id, name, address, latitude, longitude, phone, site, description, id_seller, id_category , city) = result[0]
         return {"find":True , "shop":{"id":id, "name":name, "address":address, "latitude":latitude, "longitude":longitude, "id_seller":id_seller, "id_category":id_category, "site":site , "description":description, "phone":phone}}
     else:
         return {"find":False , "shop":{}}
@@ -273,7 +273,7 @@ def login_seller():
 
     query = f"SELECT * FROM {TABLE_SELLER} WHERE {TABLE_SELLER_PHONE}={phone}"
     result = select_from_db(query)
-        
+    
     if len(result) == 1 and passwd == result[0][4]: 
         id = result[0][0]
         return {"login":True , "seller_id":id}
